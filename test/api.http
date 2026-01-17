@@ -1,0 +1,25 @@
+###
+POST http://localhost:3000/api/policies
+
+{
+  "policyId": "P001",
+  "coverage": 100000,
+  "premium": 1200
+}
+
+###
+GET http://localhost:3000/api/policies
+
+
+###
+PUT http://localhost:3000/api/policies/1
+Content-Type: application/json
+
+{
+  "coverage": 200000,
+  "premium": 1500
+}
+
+
+###
+DELETE http://localhost:3000/api/policies/1

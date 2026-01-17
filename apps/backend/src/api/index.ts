@@ -12,6 +12,9 @@ import { CreatePolicyRequest } from "@repo/domain/request/policy.js";
 import { PolicyListResponseSchema, PolicySchema } from "@repo/domain/dto/policy.dto.js";
 
 
+
+let policies: any[] = []
+let id = 1
 let userService = new UserService(new UserRepositorySqlite());
 let policyService = new PolicyService(new PolicyRepositorySqlite());
 
@@ -45,54 +48,60 @@ let createUserRequest = CreateUserRequest.extend({}).refine((data) => data.passw
     path: ["password"],
 })
 
-api.get('/policies',
-    describeRoute({
-        description: "List of policies",
-        responses: {
-            200: {
-                description: "Successful response",
-                content: {
-                    "application/json": {
-                        schema: resolver(PolicyListResponseSchema)
-                    }
-                }
-            }
-        }
-    }),
-    (c) => {
-        let data = policyService.findAll();
-        return c.json({
-            message: "Get Policy List",
-            data
-        });
-    }
-)
-api.post('/policies',
-    describeRoute({
-        description: "Create Policy",
-        responses: {
-            200: {
-                description: "Successful response",
-                content: {
-                    "application/json": {
-                        schema: resolver(PolicySchema)
-                    }
-                }
-            }
-        }
-    }),
-    createValidator("json", CreatePolicyRequest),
-    async (c) => {
-        const data = c.req.valid("json");
-        let result = await policyService.create(data);
+api.post('/policies', async (c) => {
+  const body = await c.req.json()
+  const policy = { id: id++, ...body }
+  policies.push(policy)
 
+  return c.json({
+    message: 'Policy created',
+    data: policy
+  })
+})
 
-        return c.json({
-            message: "Policy Created",
-            data: result
-        });
-    }
-)
+// READ ALL
+api.get('/policies', (c) => {
+  return c.json({
+    message: 'Policy list',
+    data: policies
+  })
+})
+
+// READ BY ID
+api.get('/policies/:id', (c) => {
+  const policy = policies.find(p => p.id === Number(c.req.param('id')))
+  if (!policy) {
+    return c.json({ message: 'Not found' }, 404)
+  }
+  return c.json(policy)
+})
+
+// UPDATE
+api.put('/policies/:id', async (c) => {
+  const index = policies.findIndex(p => p.id === Number(c.req.param('id')))
+  if (index === -1) {
+    return c.json({ message: 'Not found' }, 404)
+  }
+
+  const body = await c.req.json()
+  policies[index] = { ...policies[index], ...body }
+
+  return c.json({
+    message: 'Updated',
+    data: policies[index]
+  })
+})
+
+// DELETE
+api.delete('/policies/:id', (c) => {
+  const index = policies.findIndex(p => p.id === Number(c.req.param('id')))
+  if (index === -1) {
+    return c.json({ message: 'Not found' }, 404)
+  }
+
+  policies.splice(index, 1)
+  return c.json({ message: 'Deleted' })
+})
 
 
 api.post('/users',
