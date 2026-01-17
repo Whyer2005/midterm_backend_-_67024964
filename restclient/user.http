@@ -1,0 +1,27 @@
+###
+GET http://localhost:3000/api/users
+
+###
+//for wrong data
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+    "username" : "admin",
+    "password" : "admin1234",
+    "password_confirmation" : "admin123",
+    "email" : "admin"
+}
+
+
+###
+#for correct data
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+    "username" : "admin",
+    "password" : "admin1234",
+    "password_confirmation" : "admin1234",
+    "email" : "admin@admin.com"
+}
