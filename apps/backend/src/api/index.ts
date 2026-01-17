@@ -12,11 +12,20 @@ import { CreatePolicyRequest } from "@repo/domain/request/policy.js";
 import { PolicyListResponseSchema, PolicySchema } from "@repo/domain/dto/policy.dto.js";
 
 
+type Policy = {
+  PolicyID: number
+  Coverage: string
+  Premium: number
+  StartDate: string
+  EndDate: string
+}
 
-let policies: any[] = []
-let id = 1
+let policies: Policy[] = []
+let policyId = 1
+
 let userService = new UserService(new UserRepositorySqlite());
 let policyService = new PolicyService(new PolicyRepositorySqlite());
+
 
 
 const api = new Hono()
@@ -50,7 +59,14 @@ let createUserRequest = CreateUserRequest.extend({}).refine((data) => data.passw
 
 api.post('/policies', async (c) => {
   const body = await c.req.json()
-  const policy = { id: id++, ...body }
+
+  const policy: Policy = {
+    PolicyID: policyId++,
+    Coverage: body.Coverage,
+    Premium: body.Premium,
+    StartDate: body.StartDate,
+    EndDate: body.EndDate
+  }
   policies.push(policy)
 
   return c.json({
@@ -69,22 +85,32 @@ api.get('/policies', (c) => {
 
 // READ BY ID
 api.get('/policies/:id', (c) => {
-  const policy = policies.find(p => p.id === Number(c.req.param('id')))
+  const policy = policies.find(
+    p => p.PolicyID === Number(c.req.param('id'))
+  )
   if (!policy) {
     return c.json({ message: 'Not found' }, 404)
   }
   return c.json(policy)
 })
 
+
 // UPDATE
 api.put('/policies/:id', async (c) => {
-  const index = policies.findIndex(p => p.id === Number(c.req.param('id')))
+  const index = policies.findIndex(
+    p => p.PolicyID === Number(c.req.param('id'))
+  )
+
   if (index === -1) {
     return c.json({ message: 'Not found' }, 404)
   }
 
   const body = await c.req.json()
-  policies[index] = { ...policies[index], ...body }
+
+  policies[index] = {
+    ...policies[index],
+    ...body
+  }
 
   return c.json({
     message: 'Updated',
@@ -94,7 +120,10 @@ api.put('/policies/:id', async (c) => {
 
 // DELETE
 api.delete('/policies/:id', (c) => {
-  const index = policies.findIndex(p => p.id === Number(c.req.param('id')))
+  const index = policies.findIndex(
+    p => p.PolicyID === Number(c.req.param('id'))
+  )
+
   if (index === -1) {
     return c.json({ message: 'Not found' }, 404)
   }
@@ -102,6 +131,7 @@ api.delete('/policies/:id', (c) => {
   policies.splice(index, 1)
   return c.json({ message: 'Deleted' })
 })
+
 
 
 api.post('/users',

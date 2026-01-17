@@ -2,9 +2,10 @@
 POST http://localhost:3000/api/policies
 
 {
-  "policyId": "P001",
-  "coverage": 100000,
-  "premium": 1200
+  "Coverage": "Health Insurance",
+  "Premium": 15000,
+  "StartDate": "2024-01-01",
+  "EndDate": "2024-12-31"
 }
 
 ###
@@ -16,9 +17,9 @@ PUT http://localhost:3000/api/policies/1
 Content-Type: application/json
 
 {
-  "coverage": 200000,
-  "premium": 1500
+  "Premium": 18000
 }
+
 
 
 ###
